@@ -35,6 +35,7 @@ Press F5 in VS Code to launch an Extension Development Host.
 - Experimental: Rust + Leptos frontend, RPoem gateway (root-field routing only; queries mixing several subgraphs are rejected). Cosmo Router config is pre-composed; re-run "wgc router compose" after changing the GraphQL schema.
 - Files are written only to the folder you choose; existing files with the same name are overwritten.
 - VPS / rental-server automatic read-write keys (SSH private and public keys): save them on a local drive as <file name>.txt (outside any repository) and tell Claude Code to read that file. Because Claude reads it, its contents are sent to the Anthropic API — use a dedicated, least-privilege key you can revoke, and never paste key contents into chat or commit the file.
+- Creating a GitHub token (for pushing from Claude Code): GitHub → profile icon → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token (https://github.com/settings/personal-access-tokens/new). Set a short expiration, choose "Only select repositories" and pick just the repository, then under Repository permissions set Contents = Read and write (Metadata stays Read-only). Click Generate, copy the token (shown only once), save it as <file name>.txt outside the repository, and never paste it into chat. Revoke it on the same page when no longer needed.
 
 </details>
 
@@ -47,6 +48,7 @@ Press F5 in VS Code to launch an Extension Development Host.
 - 実験的機能: Rust + Leptos フロント、RPoem ゲートウェイ(ルートフィールド単位の振り分けのみ。複数サブグラフにまたがるクエリは拒否)。Cosmo Router の設定は事前生成済みです。GraphQL スキーマを変更したら「wgc router compose」を再実行してください。
 - ファイルは選択したフォルダにのみ書き込まれ、同名の既存ファイルは上書きされます。
 - VPS(レンタルサーバー)の自動読み書き用の秘密鍵・公開鍵は、ローカルドライブに「ファイル名.txt」として保存し(リポジトリの外に置く)、CLAUDE にそのファイルを読ませてください。CLAUDE が読むと内容が Anthropic API に送信されるため、取り消し可能で権限を最小にした専用の鍵を使い、鍵の内容をチャットに貼ったりファイルをコミットしたりしないでください。
+- GitHub トークンの作り方(Claude Code から push する場合): GitHub → 右上のアイコン → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token(https://github.com/settings/personal-access-tokens/new)。有効期限は短めにし、「Only select repositories」で対象リポジトリだけを選び、Repository permissions の Contents を「Read and write」にします(Metadata は Read-only のまま)。Generate token を押し、表示されたトークン(一度しか表示されません)をコピーして、リポジトリの外に「ファイル名.txt」として保存してください。チャットには貼らないでください。不要になったら同じ画面で失効させます。
 
 </details>
 
@@ -59,6 +61,7 @@ Press F5 in VS Code to launch an Extension Development Host.
 - 实验性功能：Rust + Leptos 前端、RPoem 网关（仅按根字段路由，跨多个子图的查询会被拒绝）。Cosmo Router 配置已预先生成；修改 GraphQL 模式后请重新运行“wgc router compose”。
 - 文件只会写入您选择的文件夹，同名的现有文件将被覆盖。
 - VPS（租用服务器）自动读写所用的 SSH 私钥和公钥：请以“文件名.txt”保存到本地磁盘（放在任何代码仓库之外），并让 Claude 读取该文件。由于 Claude 会读取其内容，内容将发送至 Anthropic API——请使用可随时吊销、权限最小的专用密钥，切勿把密钥内容粘贴到聊天中或提交该文件。
+- 创建 GitHub 令牌（用于从 Claude Code 推送）：GitHub → 右上角头像 → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token（https://github.com/settings/personal-access-tokens/new）。设置较短的有效期，选择“Only select repositories”并仅选中目标仓库，在 Repository permissions 中将 Contents 设为“Read and write”（Metadata 保持只读）。点击 Generate token，复制令牌（仅显示一次），以“文件名.txt”保存到仓库之外，切勿粘贴到聊天中。不再需要时在同一页面吊销。
 
 </details>
 
@@ -71,6 +74,7 @@ Press F5 in VS Code to launch an Extension Development Host.
 - 實驗性功能：Rust + Leptos 前端、RPoem 閘道（僅依根欄位路由，跨多個子圖的查詢會被拒絕）。Cosmo Router 設定已預先產生；變更 GraphQL 結構描述後請重新執行「wgc router compose」。
 - 檔案只會寫入您選擇的資料夾，同名的既有檔案將被覆寫。
 - VPS（租用伺服器）自動讀寫所用的 SSH 私密金鑰與公開金鑰：請以「檔名.txt」儲存於本機磁碟（置於任何程式碼儲存庫之外），並讓 Claude 讀取該檔案。由於 Claude 會讀取其內容，內容將傳送至 Anthropic API——請使用可隨時撤銷、權限最小的專用金鑰，切勿將金鑰內容貼到聊天中或提交該檔案。
+- 建立 GitHub 權杖（用於從 Claude Code 推送）：GitHub → 右上角大頭貼 → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token（https://github.com/settings/personal-access-tokens/new）。設定較短的有效期限，選擇「Only select repositories」並僅選取目標儲存庫，在 Repository permissions 將 Contents 設為「Read and write」（Metadata 維持唯讀）。按下 Generate token，複製權杖（僅顯示一次），以「檔名.txt」儲存於儲存庫之外，切勿貼到聊天中。不再需要時於同一頁面撤銷。
 
 </details>
 
@@ -83,5 +87,6 @@ Press F5 in VS Code to launch an Extension Development Host.
 - 실험적 기능: Rust + Leptos 프런트엔드, RPoem 게이트웨이(루트 필드 단위 라우팅만 지원하며 여러 서브그래프에 걸친 쿼리는 거부됨). Cosmo Router 설정은 사전 생성되어 있으며, GraphQL 스키마를 변경하면 "wgc router compose"를 다시 실행하십시오.
 - 파일은 선택한 폴더에만 기록되며, 같은 이름의 기존 파일은 덮어씁니다.
 - VPS(임대 서버) 자동 읽기/쓰기용 SSH 개인 키와 공개 키는 로컬 드라이브에 "파일이름.txt"로 저장하고(저장소 밖에 두기) Claude가 해당 파일을 읽도록 하십시오. Claude가 읽으면 내용이 Anthropic API로 전송되므로, 폐기 가능하고 권한이 최소인 전용 키를 사용하고 키 내용을 채팅에 붙여넣거나 파일을 커밋하지 마십시오.
+- GitHub 토큰 만들기(Claude Code에서 push할 때): GitHub → 오른쪽 위 프로필 아이콘 → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token(https://github.com/settings/personal-access-tokens/new). 만료 기간을 짧게 설정하고 "Only select repositories"에서 대상 저장소만 선택한 뒤, Repository permissions의 Contents를 "Read and write"로 설정합니다(Metadata는 읽기 전용 유지). Generate token을 누르고 표시된 토큰(한 번만 표시됨)을 복사해 저장소 밖에 "파일이름.txt"로 저장하십시오. 채팅에 붙여넣지 마십시오. 더 이상 필요 없으면 같은 화면에서 폐기하십시오.
 
 </details>
