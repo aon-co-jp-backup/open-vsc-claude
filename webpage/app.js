@@ -1537,7 +1537,7 @@ ${(0, notices_1.noticeHtml)(lang)}
     const custom = st === 'custom';
     for (const l of document.querySelectorAll('.stackopt')) l.style.display = custom ? 'none' : '';
     $('gwlabel').style.display = st === 'cosmo' ? '' : 'none';
-    $('stack').style.display = custom ? '' : 'none';
+    $('stack').classList.toggle('hidden', !custom);
   }
 
   function render() {
@@ -1713,16 +1713,27 @@ ${(0, notices_1.noticeHtml)(lang)}
   });
 
   document.open();
-  document.write(html('demo', location.origin, lang).replace('</head>', '<meta name="theme-color" content="#0e639c"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="stylesheet" href="theme.css"></head>'));
+  // The webview markup carries a CSP <meta>; written into a plain page it is ignored (and logs an error), so drop it here.
+  const page = html('demo', location.origin, lang)
+    .replace(/<meta http-equiv="Content-Security-Policy"[^>]*>/, '')
+    .replace('</head>', '<meta name="theme-color" content="#0e639c"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="stylesheet" href="theme.css"></head>');
+  document.open();
+  document.write(page);
   document.close();
   const bar = document.createElement('div');
-  bar.textContent = ui.demoBanner + '  ';
-  bar.style.cssText = 'padding:8px 14px;font:12px system-ui,sans-serif;background:#0e639c;color:#fff;';
-  const repo = document.createElement('a');
-  repo.href = 'https://github.com/aon-co-jp/open-vsc-claude';
-  repo.textContent = 'GitHub →';
-  repo.style.cssText = 'color:#fff;font-weight:600;';
-  bar.appendChild(repo);
+  bar.style.cssText = 'padding:8px 14px;font:12px system-ui,sans-serif;background:#0e639c;color:#fff;line-height:1.7;';
+  bar.appendChild(document.createTextNode(ui.demoBanner + '  '));
+  for (const [label, href] of [
+    ['GitHub →', 'https://github.com/aon-co-jp/open-vsc-claude'],
+    ['.vsix →', 'https://github.com/aon-co-jp/open-vsc-claude/releases/latest'],
+    ['Docs (12 languages) →', 'https://github.com/aon-co-jp/open-vsc-claude/tree/main/docs/i18n'],
+  ]) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.textContent = label;
+    a.style.cssText = 'color:#fff;font-weight:600;margin-right:12px;white-space:nowrap;';
+    bar.appendChild(a);
+  }
   document.body.insertBefore(bar, document.body.firstChild);
   if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });

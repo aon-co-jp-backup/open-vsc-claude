@@ -2,7 +2,7 @@
   "name": "open-vsc-claude",
   "displayName": "Open VSC Claude",
   "description": "Pick a language/framework stack (GraphQL+Cosmo/RPoem or TypeScript+Node+REST, or describe your own), view the generated code, and refine it with Claude.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "aon-co-jp",
   "license": "MIT",
   "engines": {
@@ -75,7 +75,8 @@
     "build:demo": "npm run compile && node scripts/build-demo.js",
     "build:web": "npm run compile && node scripts/build-web.js",
     "test:web": "node scripts/build-web.js && npx @vscode/test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=out/web/suite.js",
-    "docs": "npm run compile && node scripts/gen-docs.js"
+    "docs": "npm run compile && node scripts/gen-docs.js",
+    "test:demo": "npm run build:demo && node scripts/e2e-demo.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

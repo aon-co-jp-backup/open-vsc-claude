@@ -136,7 +136,7 @@ ${noticeHtml(lang)}
     const custom = st === 'custom';
     for (const l of document.querySelectorAll('.stackopt')) l.style.display = custom ? 'none' : '';
     $('gwlabel').style.display = st === 'cosmo' ? '' : 'none';
-    $('stack').style.display = custom ? '' : 'none';
+    $('stack').classList.toggle('hidden', !custom);
   }
 
   function render() {

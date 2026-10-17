@@ -23,7 +23,9 @@ export async function run(): Promise<void> {
   const crypto = await import('crypto');
   const fs = await import('fs');
   const path = await import('path');
-  const vsixPath = path.resolve(__dirname, '../../open-vsc-claude-0.1.0.vsix');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const version = (JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8')) as { version: string }).version;
+  const vsixPath = path.resolve(__dirname, `../../open-vsc-claude-${version}.vsix`);
   const vsix = fs.readFileSync(vsixPath);
   const good = crypto.createHash('sha256').update(vsix).digest('hex');
   const realFetch = globalThis.fetch;
