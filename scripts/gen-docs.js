@@ -72,15 +72,12 @@ function write(p, s) {
   fs.writeFileSync(p, s);
 }
 
-const handoff = '
----
-
-' + fs.readFileSync(path.join(root, 'docs', 'HANDOFF.md'), 'utf8').trim() + '
-';
+// bilingual hand-off / resume message, shared by the root documents
+const handoff = '\n---\n\n' + fs.readFileSync(path.join(root, 'docs', 'HANDOFF.md'), 'utf8').trim() + '\n';
 write(path.join(root, 'README.md'), readme('en') + handoff);
 // root CLAUDE.md / PORTING.md: Japanese first, then English (the project convention)
-write(path.join(root, 'CLAUDE.md'), `${claude('ja')}\n---\n\n${claude('en')}`);
-write(path.join(root, 'PORTING.md'), `${porting('ja')}\n---\n\n${porting('en')}`);
+write(path.join(root, 'CLAUDE.md'), `${claude('ja')}\n---\n\n${claude('en')}${handoff}`);
+write(path.join(root, 'PORTING.md'), `${porting('ja')}\n---\n\n${porting('en')}${handoff}`);
 for (const code of ORDER) {
   if (code === 'en') continue;
   write(path.join(root, 'docs', 'i18n', code, 'README.md'), readme(code));
