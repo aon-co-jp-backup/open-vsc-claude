@@ -5,7 +5,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const writePwa = require('./pwa');
 const version = require('../package.json').version;
-const mods = ['catalog', 'restTemplates', 'cosmoConfig', 'notices', 'i18n', 'webview'];
+const mods = ['catalog', 'restTemplates', 'cosmoConfig', 'notices', 'i18n', 'protocol', 'webview'];
 
 let out =
   '(function(){\nconst __defs={};const __cache={};\n' +

@@ -3,16 +3,37 @@ import { Files, Selection, generate } from './catalog';
 import { generateWithClaude } from './claude';
 import { Ui, UI } from './i18n';
 import { pickLang } from './notices';
+import { PROTOCOL_VERSION } from './protocol';
+import { randomHex } from './rand';
 import { checkForUpdates } from './update';
 import { html } from './webview';
 
 const KEY = 'openVscClaude.anthropicApiKey';
+const KEY_FALLBACK = 'openVscClaude.anthropicApiKey.fallback';
 
-/** Random nonce without Node's crypto, so the same code runs in the browser/web-worker extension host. */
-function makeNonce(): string {
-  const a = new Uint8Array(16);
-  globalThis.crypto.getRandomValues(a);
-  return Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('');
+/** Some VS Code forks / Linux setups have no working keyring; fall back to extension storage and say so. */
+async function storeKey(ctx: vscode.ExtensionContext, value: string): Promise<void> {
+  try {
+    await ctx.secrets.store(KEY, value);
+    await ctx.globalState.update(KEY_FALLBACK, undefined);
+  } catch {
+    await ctx.globalState.update(KEY_FALLBACK, value);
+    vscode.window.showWarningMessage(ui().keyFallback);
+  }
+}
+
+async function readKey(ctx: vscode.ExtensionContext): Promise<string | undefined> {
+  try {
+    const v = await ctx.secrets.get(KEY);
+    if (v) return v;
+  } catch {
+    /* fall through to the fallback storage */
+  }
+  return ctx.globalState.get<string>(KEY_FALLBACK);
+}
+
+function hostName(): string {
+  return `${vscode.env.appName} (${vscode.env.uiKind === vscode.UIKind.Web ? 'web' : 'desktop'})`;
 }
 
 function ui(): Ui {
@@ -35,7 +56,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 async function setKey(ctx: vscode.ExtensionContext): Promise<boolean> {
   const v = await vscode.window.showInputBox({ prompt: 'Anthropic API key', password: true, ignoreFocusOut: true });
   if (!v) return false;
-  await ctx.secrets.store(KEY, v.trim());
+  await storeKey(ctx, v.trim());
   return true;
 }
 
@@ -53,7 +74,7 @@ async function loadKeyFromFile(ctx: vscode.ExtensionContext): Promise<boolean> {
     vscode.window.showErrorMessage(ui().keyBad);
     return false;
   }
-  await ctx.secrets.store(KEY, key);
+  await storeKey(ctx, key);
   vscode.window.showInformationMessage(ui().keyLoaded);
   return true;
 }
@@ -72,13 +93,14 @@ function openPanel(ctx: vscode.ExtensionContext): void {
     enableScripts: true,
     retainContextWhenHidden: true,
   });
-  panel.webview.html = html(makeNonce(), panel.webview.cspSource, pickLang(vscode.env.language));
+  panel.webview.html = html(randomHex(16), panel.webview.cspSource, pickLang(vscode.env.language));
   const post = (m: unknown) => panel.webview.postMessage(m);
-  const keyState = async () => post({ type: 'keyState', has: !!(await ctx.secrets.get(KEY)) });
+  const keyState = async () => post({ type: 'keyState', has: !!(await readKey(ctx)) });
 
   panel.webview.onDidReceiveMessage(async (m) => {
     try {
       if (m.type === 'init') {
+        post({ type: 'hello', protocol: PROTOCOL_VERSION, host: hostName() });
         await keyState();
       } else if (m.type === 'preview') {
         post({ type: 'files', files: generate(m.selection as Selection) });
@@ -97,8 +119,8 @@ function openPanel(ctx: vscode.ExtensionContext): void {
       } else if (m.type === 'save') {
         await save(m.files as Files);
       } else if (m.type === 'generate') {
-        let apiKey = await ctx.secrets.get(KEY);
-        if (!apiKey && (await setKey(ctx))) apiKey = await ctx.secrets.get(KEY);
+        let apiKey = await readKey(ctx);
+        if (!apiKey && (await setKey(ctx))) apiKey = await readKey(ctx);
         await keyState();
         if (!apiKey) return post({ type: 'status', text: ui().noKey });
         const cfg = vscode.workspace.getConfiguration('openVscClaude');

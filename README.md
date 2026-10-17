@@ -125,5 +125,5 @@ npm run package          # .vsix
 node scripts/gen-docs.js # regenerate these documents
 ```
 
-See [PUBLISHING.md](PUBLISHING.md) for Marketplace / Open VSX publication.
+See [PUBLISHING.md](PUBLISHING.md) for Marketplace / Open VSX publication and [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) for the host matrix (VS Code 1.85+, VSCodium, web, browser demo) and the host contract.
 

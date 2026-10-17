@@ -12,8 +12,9 @@ export async function run(): Promise<void> {
   const cmds = await vscode.commands.getCommands(true);
   ok(cmds.includes('openVscClaude.open'), 'open command missing');
   await vscode.commands.executeCommand('openVscClaude.open');
-  await new Promise((r) => setTimeout(r, 1500));
-  const tab = vscode.window.tabGroups.all.flatMap((g) => g.tabs).find((t) => t.input instanceof vscode.TabInputWebview);
+  const findTab = () => vscode.window.tabGroups.all.flatMap((g) => g.tabs).find((t) => t.input instanceof vscode.TabInputWebview);
+  for (let i = 0; i < 60 && !findTab(); i++) await new Promise((r) => setTimeout(r, 250));
+  const tab = findTab();
   ok(tab, 'webview tab not opened');
   console.log('web integration ok: activated in the browser extension host, webview opened');
 }

@@ -4,12 +4,12 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const mods = ['catalog', 'restTemplates', 'cosmoConfig', 'notices', 'i18n', 'webview', 'claude', 'updateLogic', 'update', 'extension'];
+const mods = ['catalog', 'restTemplates', 'cosmoConfig', 'notices', 'i18n', 'protocol', 'webview', 'claude', 'rand', 'updateLogic', 'update', 'extension'];
 
 let out =
   '"use strict";\n(function(){\nconst __defs={};const __cache={};\n' +
   'function __require(n){\n' +
-  '  if(n==="vscode") return require("vscode");\n' +
+  '  if(n==="vscode"||n==="crypto") return require(n); // host modules (crypto only on old Node hosts)\n' +
   '  n=n.replace(/^\\.\\//,"");\n' +
   '  if(__cache[n]) return __cache[n].exports;\n' +
   '  const m={exports:{}};__cache[n]=m;__defs[n](m,m.exports,__require);return m.exports;\n}\n';

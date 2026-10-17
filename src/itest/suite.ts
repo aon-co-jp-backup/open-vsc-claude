@@ -11,9 +11,10 @@ export async function run(): Promise<void> {
   assert.ok(cmds.includes('openVscClaude.loadApiKeyFromFile'), 'loadApiKeyFromFile command missing');
 
   await vscode.commands.executeCommand('openVscClaude.open');
-  await new Promise((r) => setTimeout(r, 1500));
-  const tabs = vscode.window.tabGroups.all.flatMap((g) => g.tabs);
-  const tab = tabs.find((t) => t.input instanceof vscode.TabInputWebview);
+  // cold starts are slow: poll for the webview tab instead of a fixed sleep
+  const findTab = () => vscode.window.tabGroups.all.flatMap((g) => g.tabs).find((t) => t.input instanceof vscode.TabInputWebview);
+  for (let i = 0; i < 60 && !findTab(); i++) await new Promise((r) => setTimeout(r, 250));
+  const tab = findTab();
   assert.ok(tab, 'webview tab not opened');
   assert.ok(tab.label.includes('Open VSC Claude'), 'unexpected tab label: ' + tab.label);
   assert.strictEqual(vscode.workspace.getConfiguration('openVscClaude').get('model'), 'claude-sonnet-5-5');

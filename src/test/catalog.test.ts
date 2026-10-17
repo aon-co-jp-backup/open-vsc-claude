@@ -61,3 +61,8 @@ assert.deepStrictEqual(
 );
 assert.deepStrictEqual(pickAssets({ assets: [] }), { vsix: undefined, sha: undefined });
 console.log('ok: update logic');
+
+import { PROTOCOL_VERSION, protocolCompatible } from '../protocol';
+assert.ok(protocolCompatible(PROTOCOL_VERSION) && protocolCompatible(PROTOCOL_VERSION + 0.5) && !protocolCompatible(PROTOCOL_VERSION + 1));
+assert.ok(html('n', 'csp', 'en').includes('PROTOCOL = ' + PROTOCOL_VERSION));
+console.log('ok: protocol');

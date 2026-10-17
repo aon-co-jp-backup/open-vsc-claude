@@ -5,6 +5,7 @@
   const { html } = __require('./webview');
   const { pickLang } = __require('./notices');
   const { UI } = __require('./i18n');
+  const { PROTOCOL_VERSION } = __require('./protocol');
 
   const q = new URLSearchParams(location.search).get('lang');
   const lang = pickLang(q || navigator.language || 'en');
@@ -70,7 +71,7 @@
     },
     postMessage: (m) => {
       if (m.type === 'preview') reply({ type: 'files', files: generate(m.selection) });
-      else if (m.type === 'init') reply({ type: 'keyState', has: false });
+      else if (m.type === 'init') { reply({ type: 'hello', protocol: PROTOCOL_VERSION, host: 'browser-demo' }); reply({ type: 'keyState', has: false }); }
       else if (m.type === 'generate') reply({ type: 'status', text: ui.demoGen });
       else if (m.type === 'setKey' || m.type === 'loadKey') reply({ type: 'status', text: ui.demoKey });
       else if (m.type === 'save') { download(zip(m.files), 'open-vsc-claude-project.zip'); reply({ type: 'status', text: ui.demoSaved }); }

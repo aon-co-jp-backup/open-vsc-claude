@@ -2,7 +2,7 @@
   "name": "open-vsc-claude",
   "displayName": "Open VSC Claude",
   "description": "Pick a language/framework stack (GraphQL+Cosmo/RPoem or TypeScript+Node+REST, or describe your own), view the generated code, and refine it with Claude.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "aon-co-jp",
   "license": "MIT",
   "engines": {

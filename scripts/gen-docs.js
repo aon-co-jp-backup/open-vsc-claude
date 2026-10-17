@@ -47,7 +47,7 @@ function readme(code) {
       `| Windows / macOS / Linux | ${d.rowDesktop} |\n| Android (phone, tablet) / iPhone / iPad | ${d.rowMobile} |\n| ${code === 'en' ? 'Any modern browser' : '*'} | ${d.rowAny}: ${DEMO} |\n\n` +
       `## ${d.usageTitle}\n\n${numbered(d.u)}\n\n` +
       `## ${d.noticesTitle}\n\n${bullets(d.n)}\n` +
-      (code === 'en' ? `\n<!-- notices-in-5-languages -->\n${noticeMarkdown()}\n\n## Development\n\n\`\`\`\n${COMMANDS}\n\`\`\`\n\nSee [PUBLISHING.md](PUBLISHING.md) for Marketplace / Open VSX publication.\n` : ''),
+      (code === 'en' ? `\n<!-- notices-in-5-languages -->\n${noticeMarkdown()}\n\n## Development\n\n\`\`\`\n${COMMANDS}\n\`\`\`\n\nSee [PUBLISHING.md](PUBLISHING.md) for Marketplace / Open VSX publication and [docs/COMPATIBILITY.md](docs/COMPATIBILITY.md) for the host matrix (VS Code 1.85+, VSCodium, web, browser demo) and the host contract.\n` : ''),
   );
 }
 

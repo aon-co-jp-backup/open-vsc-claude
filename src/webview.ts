@@ -1,6 +1,7 @@
 import { OPTIONS } from './catalog';
 import { UI } from './i18n';
 import { Lang, noticeHtml } from './notices';
+import { PROTOCOL_VERSION } from './protocol';
 
 type Opt = { id: string; label: string; disabled?: boolean; styles?: readonly string[] };
 
@@ -101,6 +102,7 @@ ${noticeHtml(lang)}
 <script nonce="${nonce}">
   const vscode = acquireVsCodeApi();
   const T = ${uiJson};
+  const PROTOCOL = ${PROTOCOL_VERSION};
   const $ = (id) => document.getElementById(id);
   let files = {}, changed = new Set(), current = null;
   const sel = () => ({ stack: $('stack').value, style: $('style').value, frontend: $('frontend').value, database: $('database').value, gateway: $('gateway').value, backend: $('backend').value });
@@ -220,10 +222,11 @@ ${noticeHtml(lang)}
     }
     if (m.type === 'status') { setStatus(m.text, false); $('gen').disabled = false; }
     if (m.type === 'keyState') setKeyState(m.has);
+    if (m.type === 'hello' && Math.floor(m.protocol) !== Math.floor(PROTOCOL)) setStatus(T.protoMismatch.replace('{h}', m.protocol).replace('{u}', PROTOCOL), false);
   });
   restoreState();
   preview();
-  vscode.postMessage({ type: 'init' });
+  vscode.postMessage({ type: 'init', protocol: PROTOCOL });
 </script>
 </body>
 </html>`;

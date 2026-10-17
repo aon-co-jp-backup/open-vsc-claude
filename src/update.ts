@@ -2,15 +2,11 @@
 // this covers sideloaded .vsix installs and offers a one-click install on desktop.
 import * as vscode from 'vscode';
 import { Ui } from './i18n';
+import { sha256Hex } from './rand';
 import { Release, isNewer, pickAssets } from './updateLogic';
 
 const REPO = 'aon-co-jp/open-vsc-claude';
 const DAY = 24 * 60 * 60 * 1000;
-
-async function sha256Hex(data: Uint8Array): Promise<string> {
-  const buf = await globalThis.crypto.subtle.digest('SHA-256', data as unknown as ArrayBuffer);
-  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
-}
 
 async function installFrom(ctx: vscode.ExtensionContext, vsixUrl: string, shaUrl: string | undefined, ui: Ui): Promise<void> {
   if (!shaUrl) throw new Error(ui.updNoChecksum);
