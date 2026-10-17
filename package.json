@@ -1,0 +1,57 @@
+{
+  "name": "open-vsc-claude",
+  "displayName": "Open VSC Claude",
+  "description": "Pick a language/framework stack (HTML5+CSS3+TypeScript+React+DB+Python+FastAPI / Rust+Poem ...), view the generated code, and refine it with Claude.",
+  "version": "0.1.0",
+  "publisher": "aon-co-jp",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Snippets",
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      {
+        "command": "openVscClaude.open",
+        "title": "Open VSC Claude: Open Stack Picker"
+      },
+      {
+        "command": "openVscClaude.setApiKey",
+        "title": "Open VSC Claude: Set Anthropic API Key"
+      }
+    ],
+    "configuration": {
+      "title": "Open VSC Claude",
+      "properties": {
+        "openVscClaude.model": {
+          "type": "string",
+          "default": "claude-sonnet-5-5",
+          "description": "Claude model ID used by \"Generate with Claude\"."
+        },
+        "openVscClaude.maxTokens": {
+          "type": "number",
+          "default": 8000,
+          "description": "max_tokens for Claude generation."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "test": "node out/test/catalog.test.js",
+    "package": "vsce package",
+    "test:vscode": "node out/itest/run.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^3.1.0",
+    "typescript": "^5.6.0"
+  }
+}
