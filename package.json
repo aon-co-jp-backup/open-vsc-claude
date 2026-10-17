@@ -1,7 +1,7 @@
 {
   "name": "open-vsc-claude",
   "displayName": "Open VSC Claude",
-  "description": "Pick a language/framework stack (HTML5+CSS3+TypeScript+React+DB+Python+FastAPI / Rust+Poem ...), view the generated code, and refine it with Claude.",
+  "description": "Pick a language/framework stack (GraphQL+Cosmo/RPoem or TypeScript+Node+REST, or describe your own), view the generated code, and refine it with Claude.",
   "version": "0.1.0",
   "publisher": "aon-co-jp",
   "license": "MIT",
@@ -10,7 +10,8 @@
   },
   "categories": [
     "Snippets",
-    "Other"
+    "Other",
+    "Machine Learning"
   ],
   "main": "./out/extension.js",
   "activationEvents": [],
@@ -45,13 +46,34 @@
     "compile": "tsc -p .",
     "watch": "tsc -watch -p .",
     "test": "node out/test/catalog.test.js",
-    "package": "vsce package",
-    "test:vscode": "node out/itest/run.js"
+    "package": "npx @vscode/vsce package",
+    "test:vscode": "node out/itest/run.js",
+    "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "^3.1.0",
     "typescript": "^5.6.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aon-co-jp/open-vsc-claude.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aon-co-jp/open-vsc-claude/issues"
+  },
+  "homepage": "https://github.com/aon-co-jp/open-vsc-claude#readme",
+  "keywords": [
+    "claude",
+    "scaffold",
+    "graphql",
+    "cosmo",
+    "fastapi",
+    "rust",
+    "poem",
+    "leptos",
+    "rpoem",
+    "generator"
+  ]
 }
