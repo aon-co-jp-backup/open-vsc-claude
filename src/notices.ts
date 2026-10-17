@@ -13,6 +13,7 @@ export const NOTICES: Record<Lang, { title: string; items: string[] }> = {
       'Files are written only to the folder you choose; existing files with the same name are overwritten.',
       'VPS / rental-server automatic read-write keys (SSH private and public keys): save them on a local drive as <file name>.txt (outside any repository) and tell Claude Code to read that file. Because Claude reads it, its contents are sent to the Anthropic API — use a dedicated, least-privilege key you can revoke, and never paste key contents into chat or commit the file.',
       'Creating a GitHub token (for pushing from Claude Code): GitHub → profile icon → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token (https://github.com/settings/personal-access-tokens/new). Set a short expiration, choose "Only select repositories" and pick just the repository, then under Repository permissions set Contents = Read and write (Metadata stays Read-only). Click Generate, copy the token (shown only once), save it as <file name>.txt outside the repository, and never paste it into chat. Revoke it on the same page when no longer needed.',
+      'Anthropic API key (needed for "Generate with Claude"): create it in the Claude Console (https://console.anthropic.com/settings/keys → Create Key), copy it once, and save it as <file name>.txt on a local drive, outside any repository, with the key alone on the first line. Then run "Open VSC Claude: Load Anthropic API Key from a .txt file" (or the "load key from txt" button) and pick that file: the key moves into VS Code SecretStorage and the file is not modified. Delete or revoke the key when no longer needed.',
     ],
   },
   ja: {
@@ -26,6 +27,7 @@ export const NOTICES: Record<Lang, { title: string; items: string[] }> = {
       'ファイルは選択したフォルダにのみ書き込まれ、同名の既存ファイルは上書きされます。',
       'VPS(レンタルサーバー)の自動読み書き用の秘密鍵・公開鍵は、ローカルドライブに「ファイル名.txt」として保存し(リポジトリの外に置く)、CLAUDE にそのファイルを読ませてください。CLAUDE が読むと内容が Anthropic API に送信されるため、取り消し可能で権限を最小にした専用の鍵を使い、鍵の内容をチャットに貼ったりファイルをコミットしたりしないでください。',
       'GitHub トークンの作り方(Claude Code から push する場合): GitHub → 右上のアイコン → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token(https://github.com/settings/personal-access-tokens/new)。有効期限は短めにし、「Only select repositories」で対象リポジトリだけを選び、Repository permissions の Contents を「Read and write」にします(Metadata は Read-only のまま)。Generate token を押し、表示されたトークン(一度しか表示されません)をコピーして、リポジトリの外に「ファイル名.txt」として保存してください。チャットには貼らないでください。不要になったら同じ画面で失効させます。',
+      'Anthropic API キー(「Claude で生成・改変」に必要): Claude Console(https://console.anthropic.com/settings/keys → Create Key)で作成し、一度だけ表示されるキーをコピーして、リポジトリの外のローカルドライブに「ファイル名.txt」として保存します(1行目にキーだけを書く)。その後「Open VSC Claude: Load Anthropic API Key from a .txt file」(または画面の「キーを txt から読込」ボタン)でそのファイルを選ぶと、キーが VS Code の SecretStorage に移り、ファイル自体は変更されません。不要になったらファイルを削除し、キーを失効させてください。',
     ],
   },
   'zh-cn': {
@@ -39,6 +41,7 @@ export const NOTICES: Record<Lang, { title: string; items: string[] }> = {
       '文件只会写入您选择的文件夹，同名的现有文件将被覆盖。',
       'VPS（租用服务器）自动读写所用的 SSH 私钥和公钥：请以“文件名.txt”保存到本地磁盘（放在任何代码仓库之外），并让 Claude 读取该文件。由于 Claude 会读取其内容，内容将发送至 Anthropic API——请使用可随时吊销、权限最小的专用密钥，切勿把密钥内容粘贴到聊天中或提交该文件。',
       '创建 GitHub 令牌（用于从 Claude Code 推送）：GitHub → 右上角头像 → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token（https://github.com/settings/personal-access-tokens/new）。设置较短的有效期，选择“Only select repositories”并仅选中目标仓库，在 Repository permissions 中将 Contents 设为“Read and write”（Metadata 保持只读）。点击 Generate token，复制令牌（仅显示一次），以“文件名.txt”保存到仓库之外，切勿粘贴到聊天中。不再需要时在同一页面吊销。',
+      'Anthropic API 密钥（“使用 Claude 生成/修改”所需）：在 Claude Console（https://console.anthropic.com/settings/keys → Create Key）创建，复制仅显示一次的密钥，以“文件名.txt”保存到仓库之外的本地磁盘（第一行只写密钥）。然后运行“Open VSC Claude: Load Anthropic API Key from a .txt file”（或界面中的“从 txt 读取密钥”按钮）并选择该文件：密钥会存入 VS Code SecretStorage，文件本身不会被修改。不再需要时请删除文件并吊销密钥。',
     ],
   },
   'zh-tw': {
@@ -52,6 +55,7 @@ export const NOTICES: Record<Lang, { title: string; items: string[] }> = {
       '檔案只會寫入您選擇的資料夾，同名的既有檔案將被覆寫。',
       'VPS（租用伺服器）自動讀寫所用的 SSH 私密金鑰與公開金鑰：請以「檔名.txt」儲存於本機磁碟（置於任何程式碼儲存庫之外），並讓 Claude 讀取該檔案。由於 Claude 會讀取其內容，內容將傳送至 Anthropic API——請使用可隨時撤銷、權限最小的專用金鑰，切勿將金鑰內容貼到聊天中或提交該檔案。',
       '建立 GitHub 權杖（用於從 Claude Code 推送）：GitHub → 右上角大頭貼 → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token（https://github.com/settings/personal-access-tokens/new）。設定較短的有效期限，選擇「Only select repositories」並僅選取目標儲存庫，在 Repository permissions 將 Contents 設為「Read and write」（Metadata 維持唯讀）。按下 Generate token，複製權杖（僅顯示一次），以「檔名.txt」儲存於儲存庫之外，切勿貼到聊天中。不再需要時於同一頁面撤銷。',
+      'Anthropic API 金鑰（「使用 Claude 產生/修改」所需）：於 Claude Console（https://console.anthropic.com/settings/keys → Create Key）建立，複製僅顯示一次的金鑰，以「檔名.txt」儲存於儲存庫之外的本機磁碟（第一行只寫金鑰）。接著執行「Open VSC Claude: Load Anthropic API Key from a .txt file」（或介面中的「從 txt 讀取金鑰」按鈕）並選擇該檔案：金鑰會存入 VS Code SecretStorage，檔案本身不會被修改。不再需要時請刪除檔案並撤銷金鑰。',
     ],
   },
   ko: {
@@ -65,6 +69,7 @@ export const NOTICES: Record<Lang, { title: string; items: string[] }> = {
       '파일은 선택한 폴더에만 기록되며, 같은 이름의 기존 파일은 덮어씁니다.',
       'VPS(임대 서버) 자동 읽기/쓰기용 SSH 개인 키와 공개 키는 로컬 드라이브에 "파일이름.txt"로 저장하고(저장소 밖에 두기) Claude가 해당 파일을 읽도록 하십시오. Claude가 읽으면 내용이 Anthropic API로 전송되므로, 폐기 가능하고 권한이 최소인 전용 키를 사용하고 키 내용을 채팅에 붙여넣거나 파일을 커밋하지 마십시오.',
       'GitHub 토큰 만들기(Claude Code에서 push할 때): GitHub → 오른쪽 위 프로필 아이콘 → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token(https://github.com/settings/personal-access-tokens/new). 만료 기간을 짧게 설정하고 "Only select repositories"에서 대상 저장소만 선택한 뒤, Repository permissions의 Contents를 "Read and write"로 설정합니다(Metadata는 읽기 전용 유지). Generate token을 누르고 표시된 토큰(한 번만 표시됨)을 복사해 저장소 밖에 "파일이름.txt"로 저장하십시오. 채팅에 붙여넣지 마십시오. 더 이상 필요 없으면 같은 화면에서 폐기하십시오.',
+      'Anthropic API 키("Claude로 생성/수정"에 필요): Claude Console(https://console.anthropic.com/settings/keys → Create Key)에서 만들고, 한 번만 표시되는 키를 복사해 저장소 밖의 로컬 드라이브에 "파일이름.txt"로 저장하십시오(첫 줄에 키만 작성). 그런 다음 "Open VSC Claude: Load Anthropic API Key from a .txt file"(또는 화면의 "txt에서 키 불러오기" 버튼)을 실행해 그 파일을 선택하면 키가 VS Code SecretStorage로 옮겨지며 파일 자체는 변경되지 않습니다. 필요 없어지면 파일을 삭제하고 키를 폐기하십시오.',
     ],
   },
 };

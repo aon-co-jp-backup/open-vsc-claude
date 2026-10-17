@@ -8,6 +8,7 @@ export async function run(): Promise<void> {
   const cmds = await vscode.commands.getCommands(true);
   assert.ok(cmds.includes('openVscClaude.open'), 'open command missing');
   assert.ok(cmds.includes('openVscClaude.setApiKey'), 'setApiKey command missing');
+  assert.ok(cmds.includes('openVscClaude.loadApiKeyFromFile'), 'loadApiKeyFromFile command missing');
 
   await vscode.commands.executeCommand('openVscClaude.open');
   await new Promise((r) => setTimeout(r, 1500));

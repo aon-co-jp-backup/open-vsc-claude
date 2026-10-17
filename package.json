@@ -24,6 +24,10 @@
       {
         "command": "openVscClaude.setApiKey",
         "title": "Open VSC Claude: Set Anthropic API Key"
+      },
+      {
+        "command": "openVscClaude.loadApiKeyFromFile",
+        "title": "Open VSC Claude: Load Anthropic API Key from a .txt file"
       }
     ],
     "configuration": {

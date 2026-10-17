@@ -41,6 +41,7 @@ export function html(nonce: string, cspSource: string, lang: Lang = 'en'): strin
   <label class="stackopt">Backend ${select('backend', OPTIONS.backend, 'python-fastapi')}</label>
   <button id="save">フォルダに保存</button>
   <button id="key" class="secondary">API キー設定</button>
+  <button id="keyfile" class="secondary">キーを txt から読込</button>
 </div>
 <textarea id="stack" style="display:none;margin-bottom:6px" placeholder="使う言語・フレームワーク・作りたいものを言葉で入力 (例: Go + Gin + PostgreSQL で ToDo API。Dockerfile も)"></textarea>
 <textarea id="req" placeholder="Claude への要望 (例: ユーザー認証を追加 / Item に price を追加)"></textarea>
@@ -91,6 +92,7 @@ ${noticeHtml(lang)}
   $('reset').onclick = preview;
   $('save').onclick = () => vscode.postMessage({ type: 'save', files });
   $('key').onclick = () => vscode.postMessage({ type: 'setKey' });
+  $('keyfile').onclick = () => vscode.postMessage({ type: 'loadKey' });
   $('gen').onclick = () => {
     $('gen').disabled = true;
     $('status').textContent = 'Claude に問い合わせ中…';
