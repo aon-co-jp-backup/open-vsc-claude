@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { randomBytes } from 'crypto';
 import { Files, Selection, generate } from './catalog';
 import { generateWithClaude } from './claude';
+import { pickLang } from './notices';
 import { html } from './webview';
 
 const KEY = 'openVscClaude.anthropicApiKey';
@@ -28,7 +29,7 @@ function openPanel(ctx: vscode.ExtensionContext): void {
   const panel = vscode.window.createWebviewPanel('openVscClaude', 'Open VSC Claude', vscode.ViewColumn.Active, {
     enableScripts: true,
   });
-  panel.webview.html = html(randomBytes(16).toString('hex'), panel.webview.cspSource);
+  panel.webview.html = html(randomBytes(16).toString('hex'), panel.webview.cspSource, pickLang(vscode.env.language));
 
   panel.webview.onDidReceiveMessage(async (m) => {
     try {

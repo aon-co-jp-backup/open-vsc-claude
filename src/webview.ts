@@ -1,4 +1,5 @@
 import { OPTIONS } from './catalog';
+import { Lang, noticeHtml } from './notices';
 
 function select(id: string, opts: readonly { id: string; label: string; disabled?: boolean; styles?: readonly string[] }[], def: string): string {
   return `<select id="${id}">${opts
@@ -6,7 +7,7 @@ function select(id: string, opts: readonly { id: string; label: string; disabled
     .join('')}</select>`;
 }
 
-export function html(nonce: string, cspSource: string): string {
+export function html(nonce: string, cspSource: string, lang: Lang = 'en'): string {
   return `<!doctype html>
 <html lang="ja">
 <head>
@@ -27,6 +28,7 @@ export function html(nonce: string, cspSource: string): string {
   #files div.sel { background: var(--vscode-list-activeSelectionBackground); color: var(--vscode-list-activeSelectionForeground); }
   #files div.chg::after { content: ' *'; color: var(--vscode-charts-yellow); }
   pre { flex: 1; margin: 0; overflow: auto; padding: 8px; background: var(--vscode-textCodeBlock-background); font-family: var(--vscode-editor-font-family); font-size: var(--vscode-editor-font-size); }
+  #notice { margin-top: 12px; font-size: 12px; opacity: .85; }
   #status { margin: 6px 0; font-size: 12px; min-height: 16px; }
 </style>
 </head>
@@ -45,6 +47,7 @@ export function html(nonce: string, cspSource: string): string {
 <div class="row" style="margin-top:6px"><button id="gen">Claude で生成・改変</button><button id="reset" class="secondary">テンプレートに戻す</button></div>
 <div id="status"></div>
 <div id="main"><div id="files"></div><pre id="code"></pre></div>
+${noticeHtml(lang)}
 <script nonce="${nonce}">
   const vscode = acquireVsCodeApi();
   const $ = (id) => document.getElementById(id);

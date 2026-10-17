@@ -41,3 +41,9 @@ const m = /<script nonce="n">([\s\S]*?)<\/script>/.exec(html('n', 'csp'));
 assert.ok(m, 'webview script missing');
 new Function('acquireVsCodeApi', 'document', 'window', m[1]);
 console.log('ok: webview script parses');
+
+import { NOTICES, pickLang, noticeHtml } from '../notices';
+for (const l of Object.keys(NOTICES) as (keyof typeof NOTICES)[]) assert.strictEqual(NOTICES[l].items.length, NOTICES.en.items.length, 'notice count differs: ' + l);
+assert.deepStrictEqual(['ja', 'ko', 'zh-cn', 'zh-tw', 'zh-hk', 'fr'].map(pickLang), ['ja', 'ko', 'zh-cn', 'zh-tw', 'zh-tw', 'en']);
+assert.ok(noticeHtml('ja').includes('注意書き'));
+console.log('ok: notices');
