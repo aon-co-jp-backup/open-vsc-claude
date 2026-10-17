@@ -72,7 +72,12 @@ function write(p, s) {
   fs.writeFileSync(p, s);
 }
 
-write(path.join(root, 'README.md'), readme('en'));
+const handoff = '
+---
+
+' + fs.readFileSync(path.join(root, 'docs', 'HANDOFF.md'), 'utf8').trim() + '
+';
+write(path.join(root, 'README.md'), readme('en') + handoff);
 // root CLAUDE.md / PORTING.md: Japanese first, then English (the project convention)
 write(path.join(root, 'CLAUDE.md'), `${claude('ja')}\n---\n\n${claude('en')}`);
 write(path.join(root, 'PORTING.md'), `${porting('ja')}\n---\n\n${porting('en')}`);
