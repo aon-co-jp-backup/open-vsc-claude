@@ -4,7 +4,7 @@ import { generateRest } from './restTemplates';
 import { COSMO_EXECUTION_CONFIG, COSMO_GRAPH_YAML, COSMO_SCHEMA } from './cosmoConfig';
 
 export type Style = 'cosmo' | 'rest' | 'rpoem';
-export type Frontend = 'none' | 'html-css' | 'html-css-ts' | 'html-css-ts-react';
+export type Frontend = 'none' | 'html-css' | 'html-css-ts' | 'html-css-ts-react' | 'rust-leptos';
 export type Database = 'none' | 'sqlite' | 'postgres';
 export type Backend = 'none' | 'python-fastapi' | 'rust-poem' | 'node-ts';
 
@@ -29,6 +29,7 @@ export const OPTIONS = {
   frontend: [
     { id: 'none', label: 'なし' },
     { id: 'html-css', label: 'HTML5 + CSS3 + JavaScript (ビルド不要)' },
+    { id: 'rust-leptos', label: '【実験的】Rust + Leptos (WASM, trunk) — JS/TS を書かない', styles: ['cosmo'] },
     { id: 'html-css-ts', label: 'HTML5 + CSS3 + TypeScript (Vite)', styles: ['rest'] },
     { id: 'html-css-ts-react', label: 'HTML5 + CSS3 + TypeScript + React (Vite)', styles: ['rest'] },
   ],
@@ -59,16 +60,19 @@ export function generate(input: Selection): Files {
   // GraphQL + Cosmo style: Node-based options do not exist here, coerce them to the closest valid one.
   const sel: Selection = {
     ...input,
-    frontend: input.frontend === 'none' ? 'none' : 'html-css',
+    frontend: input.frontend === 'none' ? 'none' : input.frontend === 'rust-leptos' ? 'rust-leptos' : 'html-css',
     backend: input.backend === 'node-ts' ? 'none' : input.backend,
     gateway: input.gateway === 'none' ? 'none' : 'cosmo',
   };
   const files: Files = {};
-  if (sel.frontend === 'html-css') {
+  if (sel.frontend === 'rust-leptos') {
+    for (const [p, c] of Object.entries(leptosFiles(sel.backend !== 'none' && sel.gateway === 'none' ? SUBGRAPH_PORT : ROUTER_PORT))) files['frontend/' + p] = c;
+  } else if (sel.frontend === 'html-css') {
     for (const [p, c] of Object.entries(frontendFiles(sel.backend !== 'none' && sel.gateway === 'none' ? SUBGRAPH_PORT : ROUTER_PORT))) files['frontend/' + p] = c;
   }
   if (sel.backend !== 'none') {
-    const b = sel.backend === 'python-fastapi' ? fastapiFiles(sel.database) : poemFiles(sel.database);
+    const cors = sel.gateway === 'none'; // the Cosmo Router handles CORS itself; direct browser access needs it on the subgraph
+    const b = sel.backend === 'python-fastapi' ? fastapiFiles(sel.database, cors) : poemFiles(sel.database, cors);
     for (const [p, c] of Object.entries(b)) files['backend/' + p] = c;
   }
   if (sel.backend !== 'none' && sel.gateway === 'cosmo') {
@@ -136,7 +140,9 @@ function readme(sel: Selection): string {
       '',
     );
   }
-  if (sel.frontend === 'html-css') {
+  if (sel.frontend === 'rust-leptos') {
+    L.push('Frontend (Rust + Leptos CSR, no Node/JS): one-time `rustup target add wasm32-unknown-unknown` and `cargo install trunk --locked`, then:', '```', 'cd frontend', 'trunk serve --open', '```', '');
+  } else if (sel.frontend === 'html-css') {
     L.push('Frontend: open `frontend/index.html` (it posts GraphQL to the gateway, or directly to the subgraph when no gateway is selected).', '');
   }
   return L.join('\n');
@@ -210,9 +216,158 @@ load();
   };
 }
 
+// ---------------------------------------------------------------- Rust + Leptos (CSR)
+
+function leptosFiles(port: number): Files {
+  return {
+    'Cargo.toml': `[package]
+name = "frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+leptos = { version = "0.7", features = ["csr"] }
+gloo-net = { version = "0.6", features = ["http", "json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+`,
+    'index.html': `<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Items</title>
+    <link data-trunk rel="css" href="style.css" />
+    <link data-trunk rel="rust" />
+  </head>
+  <body></body>
+</html>
+`,
+    'style.css': `:root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+body { max-width: 32rem; margin: 2rem auto; padding: 0 1rem; }
+h1 { font-size: 1.4rem; }
+form { display: flex; gap: .5rem; margin-bottom: 1rem; }
+input { flex: 1; padding: .4rem .6rem; }
+button { padding: .4rem .9rem; cursor: pointer; }
+li { padding: .25rem 0; }
+.error { color: crimson; }
+`,
+    'src/main.rs': `use gloo_net::http::Request;
+use leptos::prelude::*;
+use leptos::task::spawn_local;
+use serde::{de::DeserializeOwned, Deserialize};
+use serde_json::json;
+
+const ENDPOINT: &str = "http://localhost:${port}/graphql";
+
+#[derive(Clone, Deserialize)]
+struct Item {
+    id: i64,
+    name: String,
+}
+
+#[derive(Deserialize)]
+struct ItemsData {
+    items: Vec<Item>,
+}
+
+#[derive(Deserialize)]
+struct GqlError {
+    message: String,
+}
+
+#[derive(Deserialize)]
+struct GqlResponse<T> {
+    data: Option<T>,
+    errors: Option<Vec<GqlError>>,
+}
+
+async fn gql<T: DeserializeOwned>(query: &str, variables: serde_json::Value) -> Result<T, String> {
+    let body = json!({ "query": query, "variables": variables }).to_string();
+    let resp = Request::post(ENDPOINT)
+        .header("Content-Type", "application/json")
+        .body(body)
+        .map_err(|e| e.to_string())?
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let parsed: GqlResponse<T> = resp.json().await.map_err(|e| e.to_string())?;
+    if let Some(errors) = parsed.errors {
+        return Err(errors.into_iter().map(|e| e.message).collect::<Vec<_>>().join("; "));
+    }
+    parsed.data.ok_or_else(|| "empty response".to_string())
+}
+
+fn load(set_items: WriteSignal<Vec<Item>>, set_error: WriteSignal<String>) {
+    spawn_local(async move {
+        match gql::<ItemsData>("{ items { id name } }", json!({})).await {
+            Ok(d) => {
+                set_error.set(String::new());
+                set_items.set(d.items);
+            }
+            Err(e) => set_error.set(e),
+        }
+    });
+}
+
+#[component]
+fn App() -> impl IntoView {
+    let (items, set_items) = signal(Vec::<Item>::new());
+    let (name, set_name) = signal(String::new());
+    let (error, set_error) = signal(String::new());
+    load(set_items, set_error);
+
+    let on_submit = move |ev: leptos::ev::SubmitEvent| {
+        ev.prevent_default();
+        let n = name.get();
+        spawn_local(async move {
+            let r = gql::<serde_json::Value>(
+                "mutation ($name: String!) { createItem(name: $name) { id } }",
+                json!({ "name": n }),
+            )
+            .await;
+            match r {
+                Ok(_) => {
+                    set_name.set(String::new());
+                    load(set_items, set_error);
+                }
+                Err(e) => set_error.set(e),
+            }
+        });
+    };
+
+    view! {
+        <h1>"Items"</h1>
+        <form on:submit=on_submit>
+            <input
+                placeholder="name"
+                required
+                prop:value=move || name.get()
+                on:input:target=move |ev| set_name.set(ev.target().value())
+            />
+            <button>"Add"</button>
+        </form>
+        <p class="error">{move || error.get()}</p>
+        <ul>
+            <For
+                each=move || items.get()
+                key=|it| it.id
+                children=|it| view! { <li>{it.id} ": " {it.name}</li> }
+            />
+        </ul>
+    }
+}
+
+fn main() {
+    leptos::mount::mount_to_body(App);
+}
+`,
+  };
+}
+
 // ---------------------------------------------------------------- FastAPI + Strawberry
 
-function fastapiFiles(db: Database): Files {
+function fastapiFiles(db: Database, cors: boolean): Files {
   const reqs = ['fastapi>=0.115', 'uvicorn[standard]>=0.30', 'strawberry-graphql[fastapi]>=0.240'];
   if (db === 'postgres') reqs.push('psycopg[binary]>=3.2');
   let pre = '';
@@ -277,9 +432,11 @@ with conn() as c:
             row = c.execute("INSERT INTO items (name) VALUES (%s) RETURNING id", (name,)).fetchone()
         return Item(id=row[0], name=name)`;
   }
+  const corsImport = cors ? 'from fastapi.middleware.cors import CORSMiddleware\n' : '';
+  const corsUse = cors ? 'app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])\n' : '';
   const main = `import strawberry
 from fastapi import FastAPI
-from strawberry.fastapi import GraphQLRouter
+${corsImport}from strawberry.fastapi import GraphQLRouter
 
 
 @strawberry.type
@@ -306,14 +463,14 @@ schema = strawberry.Schema(query=Query, mutation=Mutation)
 
 # Subgraph behind the Cosmo Router (router -> http://localhost:${SUBGRAPH_PORT}/graphql)
 app = FastAPI()
-app.include_router(GraphQLRouter(schema), prefix="/graphql")
+${corsUse}app.include_router(GraphQLRouter(schema), prefix="/graphql")
 `;
   return { 'main.py': main, 'requirements.txt': reqs.join('\n') + '\n' };
 }
 
 // ---------------------------------------------------------------- Poem + async-graphql
 
-function poemFiles(db: Database): Files {
+function poemFiles(db: Database, cors: boolean): Files {
   const deps = [
     'poem = "3"',
     'async-graphql = "7"',
@@ -335,7 +492,7 @@ ${deps.join('\n')}
 
 use async_graphql::{Context, EmptySubscription, Object, Result, Schema, SimpleObject};
 use async_graphql_poem::GraphQL;
-use poem::{listener::TcpListener, post, Route, Server};
+use poem::{listener::TcpListener, ${cors ? 'middleware::Cors, ' : ''}post, ${cors ? 'EndpointExt, ' : ''}Route, Server};
 
 #[derive(Clone, SimpleObject)]
 struct Item {
@@ -371,7 +528,7 @@ async fn main() -> Result<(), std::io::Error> {
     let store: Store = Arc::new(Mutex::new(Vec::new()));
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription).data(store).finish();
     // Subgraph behind the Cosmo Router (router -> http://localhost:${SUBGRAPH_PORT}/graphql)
-    let app = Route::new().at("/graphql", post(GraphQL::new(schema)));
+    let app = Route::new().at("/graphql", post(GraphQL::new(schema)))${cors ? '.with(Cors::new())' : ''};
     println!("subgraph on http://localhost:${SUBGRAPH_PORT}/graphql");
     Server::new(TcpListener::bind("0.0.0.0:${SUBGRAPH_PORT}")).run(app).await
 }
@@ -384,7 +541,7 @@ async fn main() -> Result<(), std::io::Error> {
     const ph = sqlite ? '?' : '$1';
     main = `use async_graphql::{Context, EmptySubscription, Object, Result, Schema, SimpleObject};
 use async_graphql_poem::GraphQL;
-use poem::{listener::TcpListener, post, Route, Server};
+use poem::{listener::TcpListener, ${cors ? 'middleware::Cors, ' : ''}post, ${cors ? 'EndpointExt, ' : ''}Route, Server};
 
 type Pool = ${pool};
 
@@ -427,7 +584,7 @@ async fn main() -> Result<(), std::io::Error> {
         .expect("create table");
     let schema = Schema::build(QueryRoot, MutationRoot, EmptySubscription).data(pool).finish();
     // Subgraph behind the Cosmo Router (router -> http://localhost:${SUBGRAPH_PORT}/graphql)
-    let app = Route::new().at("/graphql", post(GraphQL::new(schema)));
+    let app = Route::new().at("/graphql", post(GraphQL::new(schema)))${cors ? '.with(Cors::new())' : ''};
     println!("subgraph on http://localhost:${SUBGRAPH_PORT}/graphql");
     Server::new(TcpListener::bind("0.0.0.0:${SUBGRAPH_PORT}")).run(app).await
 }

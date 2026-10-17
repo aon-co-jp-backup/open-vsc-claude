@@ -6,7 +6,7 @@ VS Code extension: pick a stack, view the generated code, refine it with Claude,
   - GraphQL + WunderGraph Cosmo Router (no Node.js, no REST; the router execution config is pre-composed and bundled)
   - TypeScript + Node.js + REST API
   - RPoem — listed but disabled: verified 2026-10-18 that the RPoem gateway cannot forward queries to external subgraphs
-- **Frontend**: HTML5+CSS3+JS (REST style also: +TypeScript, +TypeScript+React via Vite)
+- **Frontend**: HTML5+CSS3+JS, or **Rust + Leptos (WASM via trunk, experimental — no JS/TS to write; Cosmo style)** (REST style also: +TypeScript, +TypeScript+React via Vite)
 - **Backend**: Python+FastAPI, Rust+Poem, (REST style also: Node.js+Express/TypeScript)
 - **Database**: none / SQLite / PostgreSQL
 
