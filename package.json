@@ -111,5 +111,10 @@
     "untrustedWorkspaces": {
       "supported": true
     }
+  },
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
   }
 }

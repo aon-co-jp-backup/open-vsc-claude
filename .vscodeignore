@@ -8,3 +8,7 @@ tsconfig.json
 .vscode-test-user/
 scripts/**
 docs/**
+webpage/**
+out/web/suite.js
+.gitignore
+open-vsc-claude-*.vsix
