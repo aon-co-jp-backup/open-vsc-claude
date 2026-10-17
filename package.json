@@ -28,6 +28,10 @@
       {
         "command": "openVscClaude.loadApiKeyFromFile",
         "title": "Open VSC Claude: Load Anthropic API Key from a .txt file"
+      },
+      {
+        "command": "openVscClaude.checkForUpdates",
+        "title": "Open VSC Claude: Check for Updates"
       }
     ],
     "configuration": {
@@ -42,6 +46,21 @@
           "type": "number",
           "default": 8000,
           "description": "max_tokens for Claude generation."
+        },
+        "openVscClaude.autoUpdate": {
+          "type": "string",
+          "enum": [
+            "notify",
+            "install",
+            "off"
+          ],
+          "default": "notify",
+          "enumDescriptions": [
+            "Check GitHub Releases once a day and ask before installing (desktop) / show the release page (web).",
+            "Check once a day and install a newer release automatically after verifying its SHA-256 (desktop only).",
+            "Never check automatically."
+          ],
+          "description": "Update check for sideloaded .vsix installs. Marketplace / Open VSX installs are updated by VS Code itself."
         }
       }
     }
@@ -52,12 +71,17 @@
     "test": "node out/test/catalog.test.js",
     "package": "npx @vscode/vsce package",
     "test:vscode": "node out/itest/run.js",
-    "vscode:prepublish": "npm run compile"
+    "vscode:prepublish": "npm run compile && node scripts/build-web.js",
+    "build:demo": "npm run compile && node scripts/build-demo.js",
+    "build:web": "npm run compile && node scripts/build-web.js",
+    "test:web": "node scripts/build-web.js && npx @vscode/test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=out/web/suite.js",
+    "docs": "npm run compile && node scripts/gen-docs.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.85.0",
     "@vscode/test-electron": "^3.1.0",
+    "@vscode/test-web": "^0.0.81",
     "typescript": "^5.6.0"
   },
   "repository": {
@@ -79,5 +103,12 @@
     "leptos",
     "rpoem",
     "generator"
-  ]
+  ],
+  "browser": "./out/web/extension.js",
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  }
 }

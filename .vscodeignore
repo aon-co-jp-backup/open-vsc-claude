@@ -6,3 +6,5 @@ out/itest/**
 tsconfig.json
 .vscode-test*/
 .vscode-test-user/
+scripts/**
+docs/**

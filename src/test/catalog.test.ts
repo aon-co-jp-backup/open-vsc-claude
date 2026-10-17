@@ -47,3 +47,17 @@ for (const l of Object.keys(NOTICES) as (keyof typeof NOTICES)[]) assert.strictE
 assert.deepStrictEqual(['ja', 'ko', 'zh-cn', 'zh-tw', 'zh-hk', 'fr'].map(pickLang), ['ja', 'ko', 'zh-cn', 'zh-tw', 'zh-tw', 'en']);
 assert.ok(noticeHtml('ja').includes('注意書き'));
 console.log('ok: notices');
+
+// Inline style attributes are blocked by the webview CSP (style-src without unsafe-inline).
+assert.ok(!/ style="/.test(html('n', 'csp', 'en')), 'inline style attribute in webview html');
+console.log('ok: csp-safe markup');
+
+import { isNewer, pickAssets } from '../updateLogic';
+assert.ok(isNewer('0.1.1', '0.1.0') && isNewer('v1.0.0', '0.9.9') && isNewer('0.2', '0.1.9'));
+assert.ok(!isNewer('0.1.0', '0.1.0') && !isNewer('0.0.9', '0.1.0') && !isNewer('0.1.0-beta', '0.1.0'));
+assert.deepStrictEqual(
+  pickAssets({ assets: [{ name: 'x-0.1.1.vsix', browser_download_url: 'u1' }, { name: 'x-0.1.1.vsix.sha256', browser_download_url: 'u2' }] }),
+  { vsix: 'u1', sha: 'u2' },
+);
+assert.deepStrictEqual(pickAssets({ assets: [] }), { vsix: undefined, sha: undefined });
+console.log('ok: update logic');

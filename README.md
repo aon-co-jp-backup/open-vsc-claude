@@ -1,31 +1,47 @@
 # Open VSC Claude
 
-VS Code extension: pick a stack, view the generated code, refine it with Claude, save it to a folder.
+[English](README.md) · [日本語](docs/i18n/ja/README.md) · [简体中文](docs/i18n/zh-CN/README.md) · [繁體中文（台灣）](docs/i18n/zh-TW/README.md) · [한국어](docs/i18n/ko/README.md) · [Русский](docs/i18n/ru/README.md) · [Українська](docs/i18n/uk/README.md) · [Deutsch](docs/i18n/de/README.md) · [Italiano](docs/i18n/it/README.md) · [Français](docs/i18n/fr/README.md) · [العربية](docs/i18n/ar/README.md) · [فارسی](docs/i18n/fa/README.md)
 
-- **方式 / Style**
-  - GraphQL + WunderGraph Cosmo Router (no Node.js, no REST; the router execution config is pre-composed and bundled)
-  - TypeScript + Node.js + REST API
-  - 自由入力 / Free-form: type the language and framework in your own words and Claude builds the project
-- **Gateway (Cosmo style)**: WunderGraph Cosmo Router, **RPoem gateway** (Rust, forwards to subgraphs by root field — implemented and verified together with this extension), or none (direct)
-- **Frontend**: HTML5+CSS3+JS, or **Rust + Leptos (WASM via trunk, experimental — no JS/TS to write; Cosmo style)** (REST style also: +TypeScript, +TypeScript+React via Vite)
-- **Backend**: Python+FastAPI, Rust+Poem, (REST style also: Node.js+Express/TypeScript)
-- **Database**: none / SQLite / PostgreSQL
+A VS Code extension: pick a language/framework stack, preview the generated code, refine it with Claude and save it as a project.
 
-Command palette: `Open VSC Claude: Open Stack Picker`, `Open VSC Claude: Set Anthropic API Key` (stored in SecretStorage; model via `openVscClaude.model`).
+- Live demo: https://easy-web.tokyo/open-vps-claude/
+- Source code: https://github.com/aon-co-jp/open-vsc-claude
+- License: MIT
 
-## Develop
+## Features
 
-```
-npm install
-npm run compile
-npm test            # unit tests (all selectable combinations)
-npm run test:vscode # starts a real VS Code (set VSCODE_EXE) and opens the picker
-```
+- Pick a style: GraphQL + WunderGraph Cosmo (no Node.js, no REST), TypeScript + Node.js + REST, or describe any stack in your own words.
+- Choose the frontend (HTML5+CSS3+JS, experimental Rust+Leptos, TypeScript, React), database (none / SQLite / PostgreSQL), gateway (Cosmo Router / RPoem / none) and backend (Python+FastAPI, Rust+Poem, Node.js+Express).
+- Preview every generated file with line numbers; copy it or open it in an editor. Changing a selection updates the preview instantly.
+- "Generate / refine with Claude" edits the project from your request (an Anthropic API key is required).
+- Save to a folder (with overwrite confirmation) or, in the browser demo, download a zip.
+- UI and notices in English, Japanese, Chinese (Simplified / Traditional) and Korean; update check for sideloaded installs.
 
-Press F5 in VS Code to launch an Extension Development Host.
+## Supported platforms
 
-## Notices / 注意書き / 注意事项 / 注意事項 / 주의 사항
+One pure-JavaScript package, no native code.
 
+| Platform | How to use |
+| --- | --- |
+| Windows / macOS / Linux | VS Code extension (desktop) |
+| Android (phone, tablet) / iPhone / iPad | VS Code in the browser (vscode.dev / github.dev) with the web extension, or the browser demo added to the home screen (PWA, works offline) |
+| Any modern browser | Live demo: https://easy-web.tokyo/open-vps-claude/ |
+
+## Usage
+
+1. Run "Open VSC Claude: Open Stack Picker" from the Command Palette.
+2. Choose the stack; the preview updates immediately.
+3. For Claude generation, load your API key ("Load Anthropic API Key from a .txt file") and press Ctrl+Enter.
+
+## Notices
+
+- Generated code is a starting point; review, test and secure it before production use. No warranty.
+- Claude generation sends the selected stack, files and your request to the Anthropic API; keep secrets and personal data out of them.
+- API keys, tokens and SSH private keys: keep them in a local .txt file outside any repository; never commit them or paste them into chat.
+- The RPoem gateway routes by root field only (queries mixing subgraphs are rejected); Rust + Leptos is experimental.
+- The full notices in five languages are shown in the picker and in the extension README.
+
+<!-- notices-in-5-languages -->
 <details><summary>English — Notices</summary>
 
 - Generated code is a starting point. Review, test and secure it before any production use; no warranty is given.
@@ -95,3 +111,19 @@ Press F5 in VS Code to launch an Extension Development Host.
 - Anthropic API 키("Claude로 생성/수정"에 필요): Claude Console(https://console.anthropic.com/settings/keys → Create Key)에서 만들고, 한 번만 표시되는 키를 복사해 저장소 밖의 로컬 드라이브에 "파일이름.txt"로 저장하십시오(첫 줄에 키만 작성). 그런 다음 "Open VSC Claude: Load Anthropic API Key from a .txt file"(또는 화면의 "txt에서 키 불러오기" 버튼)을 실행해 그 파일을 선택하면 키가 VS Code SecretStorage로 옮겨지며 파일 자체는 변경되지 않습니다. 필요 없어지면 파일을 삭제하고 키를 폐기하십시오.
 
 </details>
+
+## Development
+
+```
+npm install
+npm run compile          # tsc
+npm test                 # unit tests: every selectable combination, webview CSP, notices, updater logic
+npm run test:vscode      # real VS Code (set VSCODE_EXE to Code.exe / code)
+npm run test:web         # browser VS Code (web extension) through @vscode/test-web
+npm run build:demo       # webpage/ : browser demo + PWA
+npm run package          # .vsix
+node scripts/gen-docs.js # regenerate these documents
+```
+
+See [PUBLISHING.md](PUBLISHING.md) for Marketplace / Open VSX publication.
+
