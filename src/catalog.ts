@@ -3,15 +3,17 @@
 import { generateRest } from './restTemplates';
 import { COSMO_EXECUTION_CONFIG, COSMO_GRAPH_YAML, COSMO_SCHEMA } from './cosmoConfig';
 
-export type Style = 'cosmo' | 'rest' | 'rpoem';
+export type Style = 'cosmo' | 'rest' | 'custom';
 export type Frontend = 'none' | 'html-css' | 'html-css-ts' | 'html-css-ts-react' | 'rust-leptos';
 export type Database = 'none' | 'sqlite' | 'postgres';
 export type Backend = 'none' | 'python-fastapi' | 'rust-poem' | 'node-ts';
 
-export type Gateway = 'cosmo' | 'none';
+export type Gateway = 'cosmo' | 'rpoem' | 'none';
 
 export interface Selection {
   style: Style;
+  /** custom style only: the language/framework/requirements typed by the user */
+  stack?: string;
   frontend: Frontend;
   gateway: Gateway;
   database: Database;
@@ -24,7 +26,7 @@ export const OPTIONS = {
   style: [
     { id: 'cosmo', label: 'GraphQL + WunderGraph Cosmo (Node.js・REST 不要)' },
     { id: 'rest', label: 'TypeScript + Node.js + REST API' },
-    { id: 'rpoem', label: 'RPoem (未対応: 検証でサブグラフへ中継できず)', disabled: true },
+    { id: 'custom', label: '自由入力 (言語・フレームワークを言葉で指定して Claude が開発)' },
   ],
   frontend: [
     { id: 'none', label: 'なし' },
@@ -40,8 +42,8 @@ export const OPTIONS = {
   ],
   gateway: [
     { id: 'cosmo', label: 'WunderGraph Cosmo Router (GraphQL Federation)', styles: ['cosmo'] },
+    { id: 'rpoem', label: 'RPoem ゲートウェイ (Rust製・サブグラフ中継対応、ルート単位)', styles: ['cosmo'] },
     { id: 'none', label: 'なし (サブグラフへ直接接続)', styles: ['cosmo'] },
-    { id: 'rpoem', label: 'RPoem (未対応: サブグラフへ中継できないことを検証済み)', disabled: true, styles: ['cosmo'] },
   ],
   backend: [
     { id: 'none', label: 'なし' },
@@ -53,22 +55,30 @@ export const OPTIONS = {
 
 const SUBGRAPH_PORT = 4001;
 const ROUTER_PORT = 3002;
+const RPOEM_PORT = 8080;
+
+function gatewayPort(sel: Selection): number {
+  if (sel.backend === 'none') return ROUTER_PORT;
+  return sel.gateway === 'none' ? SUBGRAPH_PORT : sel.gateway === 'rpoem' ? RPOEM_PORT : ROUTER_PORT;
+}
 
 export function generate(input: Selection): Files {
   if (input.style === 'rest') return generateRest(input);
-  if (input.style === 'rpoem') throw new Error('RPoem style is not supported yet (gateway cannot forward to subgraphs).');
+  if (input.style === 'custom') {
+    return { 'README.md': '# Custom project\n\n言語・フレームワーク・作りたいものを入力して「Claude で生成・改変」を押してください。\n' };
+  }
   // GraphQL + Cosmo style: Node-based options do not exist here, coerce them to the closest valid one.
   const sel: Selection = {
     ...input,
     frontend: input.frontend === 'none' ? 'none' : input.frontend === 'rust-leptos' ? 'rust-leptos' : 'html-css',
     backend: input.backend === 'node-ts' ? 'none' : input.backend,
-    gateway: input.gateway === 'none' ? 'none' : 'cosmo',
+    gateway: input.gateway === 'none' ? 'none' : input.gateway === 'rpoem' ? 'rpoem' : 'cosmo',
   };
   const files: Files = {};
   if (sel.frontend === 'rust-leptos') {
-    for (const [p, c] of Object.entries(leptosFiles(sel.backend !== 'none' && sel.gateway === 'none' ? SUBGRAPH_PORT : ROUTER_PORT))) files['frontend/' + p] = c;
+    for (const [p, c] of Object.entries(leptosFiles(gatewayPort(sel)))) files['frontend/' + p] = c;
   } else if (sel.frontend === 'html-css') {
-    for (const [p, c] of Object.entries(frontendFiles(sel.backend !== 'none' && sel.gateway === 'none' ? SUBGRAPH_PORT : ROUTER_PORT))) files['frontend/' + p] = c;
+    for (const [p, c] of Object.entries(frontendFiles(gatewayPort(sel)))) files['frontend/' + p] = c;
   }
   if (sel.backend !== 'none') {
     const cors = sel.gateway === 'none'; // the Cosmo Router handles CORS itself; direct browser access needs it on the subgraph
@@ -79,6 +89,11 @@ export function generate(input: Selection): Files {
     files['gateway/config.json'] = COSMO_EXECUTION_CONFIG;
     files['gateway/schema.graphqls'] = COSMO_SCHEMA;
     files['gateway/graph.yaml'] = COSMO_GRAPH_YAML;
+  }
+  if (sel.backend !== 'none' && sel.gateway === 'rpoem') {
+    files['gateway/rpoem.env'] = `OPEN_RUNO_SUBGRAPHS=items=http://localhost:${SUBGRAPH_PORT}/graphql
+`;
+    files['gateway/schema.graphqls'] = COSMO_SCHEMA;
   }
   const compose = composeFile(sel);
   if (compose) files['docker-compose.yml'] = compose;
@@ -137,6 +152,18 @@ function readme(sel: Selection): string {
       '```',
       'npx wgc router compose -i gateway/graph.yaml -o gateway/config.json',
       '```',
+      '',
+    );
+  }
+  if (sel.backend !== 'none' && sel.gateway === 'rpoem') {
+    L.push(
+      'RPoem gateway (port 8080) — https://github.com/aon-co-jp/RPoem :',
+      '```',
+      'git clone https://github.com/aon-co-jp/RPoem && cd RPoem',
+      'OPEN_RUNO_SUBGRAPHS=items=http://localhost:4001/graphql cargo run -p open-runo-gateway   # bash',
+      '$env:OPEN_RUNO_SUBGRAPHS="items=http://localhost:4001/graphql"; cargo run -p open-runo-gateway   # PowerShell',
+      '```',
+      'The gateway discovers the root fields of the subgraph by introspection and forwards matching requests (root-field routing; queries mixing several subgraphs are rejected).',
       '',
     );
   }

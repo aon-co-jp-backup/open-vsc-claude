@@ -33,13 +33,14 @@ export function html(nonce: string, cspSource: string): string {
 <body>
 <div class="row">
   <label>方式 ${select('style', OPTIONS.style, 'cosmo')}</label>
-  <label>Frontend ${select('frontend', OPTIONS.frontend, 'html-css')}</label>
-  <label>Database ${select('database', OPTIONS.database, 'sqlite')}</label>
-  <label>Gateway ${select('gateway', OPTIONS.gateway, 'cosmo')}</label>
-  <label>Backend ${select('backend', OPTIONS.backend, 'python-fastapi')}</label>
+  <label class="stackopt">Frontend ${select('frontend', OPTIONS.frontend, 'html-css')}</label>
+  <label class="stackopt">Database ${select('database', OPTIONS.database, 'sqlite')}</label>
+  <label class="stackopt" id="gwlabel">Gateway ${select('gateway', OPTIONS.gateway, 'cosmo')}</label>
+  <label class="stackopt">Backend ${select('backend', OPTIONS.backend, 'python-fastapi')}</label>
   <button id="save">フォルダに保存</button>
   <button id="key" class="secondary">API キー設定</button>
 </div>
+<textarea id="stack" style="display:none;margin-bottom:6px" placeholder="使う言語・フレームワーク・作りたいものを言葉で入力 (例: Go + Gin + PostgreSQL で ToDo API。Dockerfile も)"></textarea>
 <textarea id="req" placeholder="Claude への要望 (例: ユーザー認証を追加 / Item に price を追加)"></textarea>
 <div class="row" style="margin-top:6px"><button id="gen">Claude で生成・改変</button><button id="reset" class="secondary">テンプレートに戻す</button></div>
 <div id="status"></div>
@@ -48,7 +49,7 @@ export function html(nonce: string, cspSource: string): string {
   const vscode = acquireVsCodeApi();
   const $ = (id) => document.getElementById(id);
   let files = {}, changed = new Set(), current = null;
-  const sel = () => ({ style: $('style').value, frontend: $('frontend').value, database: $('database').value, gateway: $('gateway').value, backend: $('backend').value });
+  const sel = () => ({ stack: $('stack').value, style: $('style').value, frontend: $('frontend').value, database: $('database').value, gateway: $('gateway').value, backend: $('backend').value });
 
   function render() {
     const list = $('files');
@@ -77,7 +78,10 @@ export function html(nonce: string, cspSource: string): string {
         el.value = [...el.options].find((o) => !o.hidden && !o.disabled).value;
       }
     }
-    $('gateway').parentElement.style.display = st === 'cosmo' ? '' : 'none';
+    const custom = st === 'custom';
+    for (const l of document.querySelectorAll('.stackopt')) l.style.display = custom ? 'none' : '';
+    $('gwlabel').style.display = st === 'cosmo' ? '' : 'none';
+    $('stack').style.display = custom ? '' : 'none';
   }
   function preview() { applyStyle(); changed = new Set(); vscode.postMessage({ type: 'preview', selection: sel() }); }
   for (const id of ['style', 'frontend', 'database', 'gateway', 'backend']) $(id).onchange = preview;

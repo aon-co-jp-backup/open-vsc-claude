@@ -7,7 +7,7 @@ const pick = (list: readonly Opt[], style: string) =>
   list.filter((o) => !o.disabled && (!o.styles || o.styles.includes(style)));
 
 let n = 0;
-for (const style of OPTIONS.style.filter((s) => !('disabled' in s)))
+for (const style of OPTIONS.style.filter((s) => s.id !== 'custom'))
   for (const frontend of pick(OPTIONS.frontend, style.id))
     for (const gateway of style.id === 'cosmo' ? pick(OPTIONS.gateway, 'cosmo') : [{ id: 'none' }])
       for (const database of OPTIONS.database)
@@ -24,6 +24,12 @@ for (const style of OPTIONS.style.filter((s) => !('disabled' in s)))
           }
           n++;
         }
+
+// free-form mode and RPoem gateway
+assert.ok(generate({ style: 'custom', stack: 'Go + Gin' } as never)['README.md']);
+const rp = generate({ style: 'cosmo', frontend: 'html-css', gateway: 'rpoem', database: 'none', backend: 'python-fastapi' } as never);
+assert.ok(rp['gateway/rpoem.env'] && !rp['gateway/config.json'] && rp['frontend/app.js'].includes('localhost:8080'));
+assert.ok(rp['README.md'].includes('OPEN_RUNO_SUBGRAPHS'));
 
 const p = parseFiles('=== FILE: a/b.txt ===\nhello\n=== FILE: ../evil ===\nx\n=== FILE: c.txt ===\nbye\n');
 assert.deepStrictEqual(p, { 'a/b.txt': 'hello\n', 'c.txt': 'bye\n' });
