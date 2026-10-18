@@ -28,6 +28,7 @@ npm run compile          # tsc
 npm test                 # unit tests: every selectable combination, webview CSP, notices, updater logic
 npm run test:vscode      # real VS Code (set VSCODE_EXE to Code.exe / code)
 npm run test:web         # browser VS Code (web extension) through @vscode/test-web
+npm run test:leptos      # generated Rust + Leptos (trunk) frontend in real Chromium: direct and through the RPoem gateway (needs Rust, trunk, Python)
 npm run build:demo       # webpage/ : browser demo + PWA
 npm run package          # .vsix
 node scripts/gen-docs.js # regenerate these documents

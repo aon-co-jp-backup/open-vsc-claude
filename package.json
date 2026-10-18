@@ -76,7 +76,8 @@
     "build:web": "npm run compile && node scripts/build-web.js",
     "test:web": "node scripts/build-web.js && npx @vscode/test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=out/web/suite.js",
     "docs": "npm run compile && node scripts/gen-docs.js",
-    "test:demo": "npm run build:demo && node scripts/e2e-demo.js"
+    "test:demo": "npm run build:demo && node scripts/e2e-demo.js",
+    "test:leptos": "npm run compile && node scripts/e2e-leptos.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
