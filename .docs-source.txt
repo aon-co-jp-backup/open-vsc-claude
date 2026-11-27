@@ -1,3 +1,3 @@
 source: aon-co-jp/open-vsc-claude
-commit: 78174b06f6a4fc0cd17f88b7015263182d66db5f
-updated: 2026-11-27T06:08:25Z
+commit: 743547cf466c9b7cf8796dbbbca809aa35a2c129
+updated: 2026-11-27T06:11:53Z
